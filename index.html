@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10101c">
+<title>Rose AI Ultra</title>
+
+<style>
+:root {
+  --glass: rgba(255,255,255,.075);
+  --glass-border: rgba(255,255,255,.13);
+  --purple: #bd9aff;
+  --blue: #82baff;
+  --text: #f7f5ff;
+  --muted: #a6a4b9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100dvh;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont,
+    "SF Pro Display", "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at 15% 10%, #45316c 0%, transparent 40%),
+    radial-gradient(ellipse at 90% 85%, #153e67 0%, transparent 42%),
+    linear-gradient(135deg,#0c0d18,#151426 55%,#101927);
+}
+
+/* Ánh sáng nền */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: .25;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::before {
+  background: #a56cff;
+  top: -120px;
+  left: 20%;
+}
+
+body::after {
+  background: #438dff;
+  bottom: -150px;
+  right: 5%;
+}
+
+/* Liquid Glass */
+.glass {
+  background: rgba(255,255,255,.065);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.12),
+    0 15px 45px rgba(0,0,0,.15);
+}
+
+.app {
+  display: flex;
+  height: 100dvh;
+  padding: 12px;
+  gap: 12px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 265px;
+  flex-shrink: 0;
+  border-radius: 25px;
+  padding: 22px 17px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -.8px;
+  background: linear-gradient(100deg,#e3caff,#8dbbff);
+  color: transparent;
+  background-clip: text;
+}
+
+.logo small {
+  display: block;
+  font-size: 10px;
+  color: #aaa2c5;
+  letter-spacing: 3px;
+  margin-top: 5px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  color: white;
+  transition: .2s ease;
+}
+
+button:active {
+  transform: scale(.96);
+}
+
+.new {
+  margin-top: 28px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 16px;
+  background: linear-gradient(
+    120deg,rgba(183,143,255,.3),
+    rgba(93,159,255,.2)
+  );
+  backdrop-filter: blur(15px);
+  font-weight: 600;
+}
+
+.new:hover {
+  background: rgba(183,143,255,.3);
+}
+
+.sidebar h4 {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  margin: 28px 5px 12px;
+}
+
+.history {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.history button {
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  margin-bottom: 5px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #d0cddd;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history button:hover {
+  background: rgba(255,255,255,.09);
+}
+
+.version {
+  color: #85849a;
+  font-size: 11px;
+  padding-top: 15px;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 25px;
+  overflow: hidden;
+  position: relative;
+}
+
+header {
+  height: 72px;
+  flex-shrink: 0;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,.09);
+  background: rgba(255,255,255,.025);
+}
+
+.header-title {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.status {
+  font-size: 11px;
+  color: #bba9e9;
+  padding: 8px 12px;
+  border-radius: 30px;
+  background: rgba(183,143,255,.12);
+  border: 1px solid rgba(183,143,255,.2);
+}
+
+/* Chat */
+.chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px max(20px,calc((100% - 850px)/2));
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  scroll-behavior: smooth;
+}
+
+.welcome {
+  margin: auto;
+  text-align: center;
+  max-width: 500px;
+  animation: appear .7s ease;
+}
+
+.welcome .flower {
+  font-size: 55px;
+  filter: drop-shadow(0 0 20px #b58cff);
+}
+
+.welcome h1 {
+  font-size: clamp(30px,5vw,48px);
+  letter-spacing: -2px;
+  background: linear-gradient(100deg,#e2caff,#9cbaff,#85d9ff);
+  background-clip: text;
+  color: transparent;
+  margin: 15px 0;
+}
+
+.welcome p {
+  color: #aaa8bd;
+  line-height: 1.7;
+}
+
+.message {
+  max-width: 85%;
+  padding: 15px 19px;
+  border-radius: 20px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  animation: appear .25s ease;
+}
+
+.user {
+  align-self: flex-end;
+  background: linear-gradient(
+    135deg,rgba(173,137,255,.25),
+    rgba(99,147,255,.19)
+  );
+  border: 1px solid rgba(196,170,255,.2);
+  border-bottom-right-radius: 7px;
+}
+
+.ai {
+  align-self: flex-start;
+  background: rgba(255,255,255,.075);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.11);
+  border-bottom-left-radius: 7px;
+}
+
+/* Tools */
+.tools {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding: 12px;
+}
+
+.tools button {
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.065);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 30px;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
+.tools button:hover {
+  background: rgba(178,147,255,.2);
+  border-color: rgba(192,165,255,.35);
+}
+
+/* Input */
+.composer {
+  width: min(850px,calc(100% - 30px));
+  margin: 0 auto 18px;
+  padding: 8px;
+  display: flex;
+  gap: 9px;
+  border-radius: 23px;
+  background: rgba(255,255,255,.09);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 10px 35px rgba(0,0,0,.2);
+}
+
+.composer input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  padding: 13px 15px;
+  background: transparent;
+  color: white;
+  font-size: 14px;
+}
+
+.composer input::placeholder {
+  color: #9996ae;
+}
+
+.send {
+  width: 48px;
+  height: 46px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg,#d1aaff,#8bbaff);
+  color: #211833;
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.send:hover {
+  filter: brightness(1.12);
+}
+
+.footer {
+  text-align: center;
+  font-size: 10px;
+  color: #79778d;
+  padding-bottom: 10px;
+}
+
+@keyframes appear {
+  from {opacity:0;transform:translateY(8px)}
+  to {opacity:1;transform:translateY(0)}
+}
+
+/* Mobile */
+@media(max-width:700px) {
+  .app {
+    padding: 0;
+    gap: 0;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .main {
+    border-radius: 0;
+    border: 0;
+  }
+
+  header {
+    height: 62px;
+    padding: 0 16px;
+  }
+
+  .chat {
+    padding: 20px 14px;
+  }
+
+  .message {
+    max-width: 94%;
+    padding: 13px 15px;
+  }
+
+  .tools {
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .tools button {
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+
+  .composer {
+    margin-bottom: 10px;
+    width: calc(100% - 18px);
+  }
+
+  .welcome h1 {
+    font-size: 34px;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.18);
+  border-radius: 10px;
+}
+
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after {
+    animation-duration:.01ms!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar glass">
+  <div class="logo">
+    🌸 Rose AI
+    <small>ULTRA INTELLIGENCE</small>
+  </div>
+
+  <button class="new" onclick="newChat()">
+    ＋ Chat mới
+  </button>
+
+  <h4>LỊCH SỬ TRÒ CHUYỆN</h4>
+  <div class="history" id="history"></div>
+
+  <div class="version">Rose AI Ultra · Liquid Glass v2.0</div>
+</aside>
+
+<main class="main glass">
+
+<header>
+  <div class="header-title">🌸 Rose AI Ultra</div>
+  <div class="status" id="status">● Sẵn sàng</div>
+</header>
+
+<section class="chat" id="chat">
+
+  <div class="welcome" id="welcome">
+    <div class="flower">🌸</div>
+    <h1>Xin chào!</h1>
+    <p>Tôi là Rose AI Ultra.</p>
+    <p>Trợ lý AI đồng hành cùng bạn trong học tập,
+    lập trình và sáng tạo.</p>
+    <p>💻 Coding · 📚 Learning · 🧠 AI</p>
+  </div>
+
+</section>
+
+<div class="tools">
+  <button onclick="document.getElementById('image').click()">🖼 Ảnh</button>
+  <button onclick="startVoice()">🎙 Giọng nói</button>
+  <button onclick="speakLast()">🔊 Đọc</button>
+  <button onclick="toggleSearch()">🌐 Tìm web</button>
+  <button onclick="createImage()">🎨 Tạo ảnh</button>
+</div>
+
+<form class="composer" id="form">
+  <input id="prompt" type="text"
+    placeholder="Nhắn tin cho Rose AI..."
+    autocomplete="off">
+  <button class="send" aria-label="Gửi">➤</button>
+</form>
+
+<div class="footer">
+  Rose AI có thể đưa ra thông tin chưa chính xác.
+</div>
+
+<input type="file" id="image" accept="image/*" hidden>
+
+</main>
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+const promptInput = document.getElementById("prompt");
+
+let historyData = [];
+
+try {
+  historyData = JSON.parse(
+    localStorage.getItem("rose_history") || "[]"
+  );
+  if (!Array.isArray(historyData)) historyData = [];
+} catch {
+  historyData = [];
+}
+
+let searchMode = false;
+let lastAnswer = "";
+
+function saveHistory() {
+  try {
+    localStorage.setItem(
+      "rose_history",
+      JSON.stringify(historyData)
+    );
+  } catch (error) {
+    console.warn("Không thể lưu lịch sử:", error);
+  }
+  renderHistory();
+}
+
+function renderHistory() {
+  const box = document.getElementById("history");
+  box.innerHTML = "";
+
+  historyData.forEach((item, index) => {
+    const b = document.createElement("button");
+    b.textContent = "💬 " + item.question.slice(0, 25);
+    b.onclick = () => loadChat(index);
+    box.appendChild(b);
+  });
+}
+
+function addMessage(text, type) {
+  const div = document.createElement("div");
+  div.className = "message " + type;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+function loadChat(index) {
+  const item = historyData[index];
+  if (!item) return;
+
+  chat.innerHTML = "";
+  addMessage(item.question, "user");
+  addMessage(item.answer, "ai");
+  lastAnswer = item.answer;
+
+  document.getElementById("status").textContent =
+    "● Đang xem lịch sử";
+}
+
+function newChat() {
+  chat.innerHTML = `
+    <div class="welcome" id="welcome">
+      <div class="flower">🌸</div>
+      <h1>Xin chào!</h1>
+      <p>Tôi là Rose AI Ultra.</p>
+      <p>💻 Coding · 📚 Learning · 🧠 AI</p>
+    </div>
+  `;
+
+  lastAnswer = "";
+  promptInput.value = "";
+  document.getElementById("status").textContent =
+    "● Cuộc trò chuyện mới";
+}
+
+async function sendMessage(text) {
+  text = text.trim();
+  if (!text) return;
+
+  document.getElementById("welcome")?.remove();
+
+  addMessage(text, "user");
+  promptInput.value = "";
+
+  const loading = addMessage(
+    "Rose AI đang suy nghĩ...",
+    "ai"
+  );
+
+  document.getElementById("status").textContent =
+    "● Đang xử lý";
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: text,
+        use_search: searchMode
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Lỗi máy chủ");
+    }
+
+    const answer = data.reply || "AI chưa trả lời.";
+
+    loading.textContent = answer;
+    lastAnswer = answer;
+
+    historyData.unshift({
+      question: text,
+      answer: answer
+    });
+
+    historyData = historyData.slice(0, 50);
+    saveHistory();
+
+    document.getElementById("status").textContent =
+      "● Sẵn sàng";
+
+  } catch (error) {
+    loading.textContent =
+      "⚠️ Chưa kết nối được AI thật.\n" +
+      "Hãy kiểm tra backend Python và cấu hình API.\n" +
+      "Chi tiết: " + error.message;
+
+    document.getElementById("status").textContent =
+      "● Lỗi kết nối";
+  }
+
+  chat.scrollTop = chat.scrollHeight;
+}
+
+document.getElementById("form").onsubmit = e => {
+  e.preventDefault();
+  sendMessage(promptInput.value);
+};
+
+function toggleSearch() {
+  searchMode = !searchMode;
+
+  const status = document.getElementById("status");
+  status.textContent = searchMode
+    ? "● Tìm web đã bật"
+    : "● Tìm web đã tắt";
+}
+
+function speakLast() {
+  if (!lastAnswer) {
+    alert("Chưa có câu trả lời.");
+    return;
+  }
+
+  if (!("speechSynthesis" in window)) {
+    alert("Trình duyệt không hỗ trợ đọc.");
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(lastAnswer);
+  speech.lang = "vi-VN";
+  speechSynthesis.speak(speech);
+}
+
+function startVoice() {
+  const Speech = window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!Speech) {
+    alert("Trình duyệt chưa hỗ trợ nhận diện giọng nói.");
+    return;
+  }
+
+  const recognition = new Speech();
+  recognition.lang = "vi-VN";
+  recognition.interimResults = false;
+
+  recognition.onresult = e => {
+    promptInput.value =
+      e.results[0][0].transcript;
+  };
+
+  recognition.onerror = () => {
+    alert("Không thể nhận diện giọng nói.");
+  };
+
+  recognition.start();
+}
+
+document.getElementById("image").onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  addMessage("📷 Đã chọn ảnh: " + file.name, "user");
+
+  addMessage(
+    "Ảnh đã được chọn. Để AI phân tích nội dung ảnh, " +
+    "hãy kết nối backend hỗ trợ hình ảnh.",
+    "ai"
+  );
+
+  e.target.value = "";
+};
+
+function createImage() {
+  const description = prompt(
+    "Mô tả hình ảnh bạn muốn tạo:"
+  );
+
+  if (!description) return;
+
+  addMessage("🎨 Yêu cầu tạo ảnh: " + description, "user");
+
+  addMessage(
+    "Tính năng tạo ảnh cần kết nối API tạo ảnh ở backend.",
+    "ai"
+  );
+}
+
+renderHistory();
+</script>
+
+</body>
+</html>
